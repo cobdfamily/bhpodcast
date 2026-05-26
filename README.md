@@ -144,12 +144,12 @@ bhpodcast describe --text-file ep1-blurb.txt \
 ```
 
 The output is checked against `--max-duration`
-(default 7.5s, leaving 0.5s of headroom against
-the produce step's 8s slot). If the synthesised
-audio is longer the command writes the WAV
-anyway so you can hear what landed, but exits
-non-zero -- a downstream `produce` call in the
-same shell pipeline fails fast.
+(default 12s, the produce step's description-slot
+length). If the synthesised audio is longer the
+command writes the WAV anyway so you can hear
+what landed, but exits non-zero -- a downstream
+`produce` call in the same shell pipeline fails
+fast.
 
 Service responds with 16-bit mono 16kHz WAV;
 the produce step's `sox -m` will up-mix to
