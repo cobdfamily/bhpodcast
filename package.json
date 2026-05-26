@@ -1,0 +1,17 @@
+{
+  "name": "bhpodcast",
+  "version": "0.1.0",
+  "description": "BlindHub podcasting helpers. Small subcommands wrapping SoX for the broadcast/podcast assembly pipeline -- ducking, mixing, normalising, etc.",
+  "license": "AGPL-3.0",
+  "type": "module",
+  "main": "bhpodcast.js",
+  "bin": {
+    "bhpodcast": "./bhpodcast.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test 'test/*.test.mjs'"
+  }
+}
