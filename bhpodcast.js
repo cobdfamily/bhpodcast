@@ -30,7 +30,9 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 // names verb-shaped so `bhpodcast <verb>` reads as
 // an action.
 const SUBCOMMANDS = {
-    duck: "lib/duck.js",
+    duck:     "lib/duck.js",
+    produce:  "lib/produce.js",
+    describe: "lib/describe.js",
 };
 
 function printRootHelp() {

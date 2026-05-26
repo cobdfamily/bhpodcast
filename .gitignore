@@ -1,5 +1,15 @@
 node_modules/
 *.log
 .DS_Store
+# Audio is ignored by default so a user's working
+# WAVs don't slip into a commit, but the bundled
+# reference tracks (silence padders, intro/outro
+# variants, bridge) under assets/ DO ship.
 *.wav
+!assets/**/*.wav
 !test/fixtures/*.wav
+# Common working-output names from running the
+# subcommands locally; never want these tracked.
+/stage/
+/episode.wav
+/ducked.wav
