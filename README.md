@@ -23,6 +23,7 @@ Requires Node 22+ and `sox` in PATH:
 | `duck` | Punches a hole of reduced gain in a music track between two timestamps, with short fades on the edges. |
 | `produce` | Assembles a podcast episode from intro / description / content / outro tracks, mirroring the cobd staging pipeline. |
 | `describe` | Synthesises a short description WAV from text via the newsline TTS service, with a duration check to keep it in the produce slot. |
+| `chapters` | Stitches an EXTM3U playlist into one content WAV and emits chapter markers (Podcasting 2.0 JSON + show-notes TXT + CUE sheet). `produce` auto-shifts the offsets when it sees a sibling chapters.json. |
 
 Run `bhpodcast <name> --help` for the options each
 subcommand accepts.
@@ -158,6 +159,101 @@ fast.
 Service responds with 16-bit mono 16kHz WAV;
 the produce step's `sox -m` will up-mix to
 48kHz stereo automatically.
+
+## chapters
+
+For multi-part episodes (interview part 1, music
+break, interview part 2, etc.), `chapters` reads
+an EXTM3U playlist, stitches the parts into one
+content WAV, and writes chapter markers in three
+formats next to it.
+
+```
+#EXTM3U
+#EXTINF:-1,Welcome and housekeeping
+intro.wav
+#EXTINF:-1,Interview with Sam Hofstein
+interview-pt1.wav
+#EXTINF:-1,Music break
+break.wav
+#EXTINF:-1,More with Sam
+interview-pt2.wav
+```
+
+Run:
+
+```sh
+bhpodcast chapters \
+  --playlist episode-7.m3u \
+  --output content.wav
+```
+
+(Add `--bridge assets/bridge.wav` to insert the
+bundled bridge audio between every pair of
+parts; its duration is included in the chapter
+offsets of everything that follows.)
+
+Plain `# Title` comments before a filename also
+work as a friendlier alternative to EXTINF.
+
+The `-1` after `EXTINF:` is the spec's
+"unknown-duration" sentinel; real durations are
+probed from each audio file with `soxi`.
+
+### Output files
+
+Alongside `content.wav`, three chapter manifests
+land:
+
+| File                          | Read by |
+|-------------------------------|---------|
+| `content.wav.chapters.json`   | Podcasting 2.0 clients (Apple Podcasts, Overcast, Pocket Casts) |
+| `content.wav.chapters.txt`    | Show-notes box (one `HH:MM:SS Title` per line; Apple Podcasts auto-detects) |
+| `content.wav.chapters.cue`    | Foobar2000, Quod Libet, VLC |
+
+Offsets are relative to `content.wav` -- chapter
+1 starts at `00:00:00`.
+
+### produce auto-shifts the offsets
+
+When `produce` runs against a content WAV that
+has a sibling `.chapters.json`, it shifts every
+offset by the content-pad (28s, the silence28
+prepend) and writes the shifted shape next to
+the final episode:
+
+```
+content.wav.chapters.json         -> chapter 1 @ 00:00
+episode.wav.chapters.json         -> chapter 1 @ 00:28
+episode.wav.chapters.txt
+episode.wav.chapters.cue
+```
+
+The listener's podcast app reads the episode-
+level chapters, so the timing matches what they
+hear. The content-level chapters stay on disk
+unchanged for reference.
+
+### End-to-end workflow
+
+```sh
+bhpodcast chapters \
+  --playlist episode-7.m3u \
+  --output content.wav \
+  --bridge assets/bridge.wav
+
+bhpodcast describe \
+  --text-file ep7-blurb.txt \
+  --output desc.wav
+
+bhpodcast produce \
+  --description desc.wav \
+  --content content.wav \
+  --output episode-7.wav
+```
+
+Three commands, three concerns: chapter timing,
+description, full assembly.
 
 ## Licence
 

@@ -33,6 +33,7 @@ const SUBCOMMANDS = {
     duck:     "lib/duck.js",
     produce:  "lib/produce.js",
     describe: "lib/describe.js",
+    chapters: "lib/chapters.js",
 };
 
 function printRootHelp() {
