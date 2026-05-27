@@ -148,6 +148,41 @@ bhpodcast describe --text-file ep1-blurb.txt \
                    --output ep1-desc.wav
 ```
 
+### Picking a voice or language
+
+Two ways. Pass `--voice <name>` and / or
+`--language <bcp-47>` on the CLI:
+
+```sh
+bhpodcast describe \
+  --voice en-US-Aria \
+  --language en-US \
+  --text-file ep1-blurb.txt \
+  --output ep1-desc.wav
+```
+
+Or embed them as leading `# key: value` comments
+in the description file -- handy for per-episode
+voice changes without retyping flags:
+
+```
+# voice: en-US-Aria
+# language: en-US
+
+Today on the show we cover accessibility on the
+web, with a focus on screen-reader-friendly
+navigation patterns.
+```
+
+CLI flags win when both are supplied. Parsing
+stops at the first line that doesn't match the
+strict `# key: value` shape (or a blank line),
+so a description that legitimately starts with
+`#42 hit single this week` (no colon) is NOT
+misread as metadata. Recognised keys: `voice`,
+`language`. Unknown keys emit a warning to
+stderr.
+
 The output is checked against `--max-duration`
 (default 12s, the produce step's description-slot
 length). If the synthesised audio is longer the
