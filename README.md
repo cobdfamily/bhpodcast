@@ -119,8 +119,12 @@ Pipeline (matches `stage.sh`):
                               description, content,
                               content-out)
 
-All inputs must share sample rate + channel
-count (the bundled assets are 48kHz stereo).
+Content + description WAVs that don't already
+match the bundled assets' 48kHz stereo shape are
+auto-converted on the fly into the stage dir;
+the originals are never modified. A `--clean`
+run will rebuild those converted copies next
+time.
 
 ## describe
 
